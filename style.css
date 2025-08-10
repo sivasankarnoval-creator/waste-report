@@ -34,7 +34,10 @@ label {
 }
 
 /* ===== Inputs ===== */
-input[type=text], input[type=number], input[type=email], input[type=tel] {
+input[type=text], 
+input[type=number], 
+input[type=email], 
+input[type=tel] {
     width: 100%;
     padding: 10px 12px;
     margin-top: 6px;
@@ -86,12 +89,14 @@ button:hover {
     margin-bottom: 10px;
 }
 
+/* Unlock Section */
 .unlock-section {
     margin-top: 30px;
     border-top: 1px solid #ccc;
     padding-top: 20px;
 }
 
+/* Download Button Styles */
 button#downloadPdfBtn {
     background-color: #34a853;
     margin-top: 15px;
