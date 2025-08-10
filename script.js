@@ -1,157 +1,120 @@
-// 1. Load apartment names into <datalist> for autocomplete
-fetch("apartments.json")
-    .then(response => response.json())
-    .then(data => {
-        const list = document.getElementById("apartmentList");
-        list.innerHTML = "";
-        data.forEach(name => {
-            const option = document.createElement("option");
-            option.value = name;
-            list.appendChild(option);
-        });
-    })
-    .catch(err => console.error("Error loading apartments.json:", err));
+// ==== ELEMENT REFERENCES ====
+const reportForm = document.getElementById('reportForm');
+const reportContainer = document.getElementById('report');
+const unlockSection = document.getElementById('unlockSection');
+const unlockForm = document.getElementById('unlockForm');
+const downloadBtn = document.getElementById('downloadPdfBtn');
 
-// 2. Dynamic report template with live calculations
-function reportTemplate(apartmentName, units, location) {
-    const numUnits = Number(units);
+// ==== LOADING SPINNER HTML ====
+const spinnerHTML = `<div class="spinner" style="text-align:center; margin-top:15px;">
+    <div style="border: 4px solid #f3f3f3; border-top: 4px solid #4285f4; border-radius: 50%; width: 36px; height: 36px; animation: spin 1s linear infinite; margin: auto;"></div>
+</div>`;
 
-    // Configurable constants
-    const wastePerUnitKg = 0.9; // kg/unit/day
-    const costPerUnit = 169;    // INR/unit/month
+// ==== AUTOCOMPLETE (Load Apartments from JSON) ====
+fetch('apartments.json')
+  .then(res => res.json())
+  .then(data => {
+    const apartmentList = document.getElementById('apartmentList');
+    data.forEach(item => {
+      const option = document.createElement('option');
+      option.value = item.name;
+      apartmentList.appendChild(option);
+    });
+  })
+  .catch(err => console.error('Error loading apartments.json', err));
 
-    // Calculations
-    const totalWasteKg = (numUnits * wastePerUnitKg).toFixed(1);
-    const totalCost = (numUnits * costPerUnit).toFixed(0);
-    const securityDeposit = (totalCost * 3).toFixed(0);
+// ==== FORM SUBMIT: GENERATE REPORT ====
+reportForm.addEventListener('submit', e => {
+    e.preventDefault();
 
-    return `
-        <h2>Waste Management Proposal – ${apartmentName}</h2>
-        <p><strong>Location:</strong> ${location}</p>
-        <p><strong>No. of Units:</strong> ${numUnits}</p>
+    // Show loading spinner
+    reportContainer.style.display = 'block';
+    reportContainer.innerHTML = spinnerHTML;
 
-        <h3>Estimated Waste Generation</h3>
-        <p>Estimated total waste: <strong>${totalWasteKg} kg/day</strong>.</p>
+    // Disable button while loading
+    const submitBtn = reportForm.querySelector('button');
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Generating...";
 
-        <h3>Proposed Solution: Greenlease Subscription</h3>
-        <ul>
-            <li>On-site composting machine with maintenance</li>
-            <li>Garden waste shredder & sanitary waste destroyer</li>
-            <li>Daily trained operators & supervisor</li>
-            <li>Segregation table, PPEs & compliance reports</li>
-        </ul>
+    setTimeout(() => {
+        // Simulate calculation
+        const aptName = document.getElementById('apartment').value;
+        const units = parseInt(document.getElementById('units').value, 10);
+        const occupancy = parseInt(document.getElementById('occupancy').value, 10);
 
-        <h3>Financial Summary</h3>
-        <p>Cost per unit: ₹${costPerUnit}/month</p>
-        <p><strong>Total Monthly Cost:</strong> ₹${totalCost}</p>
-        <p><strong>Refundable Security Deposit (3 months):</strong> ₹${securityDeposit}</p>
+        // Example calculations
+        const occupiedUnits = Math.round(units * (occupancy / 100));
+        const wastePerMonth = occupiedUnits * 2; // arbitrary example: 2kg per occupied unit
+        const savingsEstimate = occupiedUnits * 50; // arbitrary: ₹50 savings per unit
 
-        <h3>Implementation Timeline</h3>
-        <ol>
-            <li>Audit & evaluation: 5 days</li>
-            <li>Installation & commissioning: 10 days</li>
-            <li>Ongoing daily operations</li>
-        </ol>
-        <p><em>For a detailed, society-specific strategy, please provide your contact details below.</em></p>
-    `;
-}
+        reportContainer.innerHTML = `
+            <h3>Report Summary</h3>
+            <p><strong>Apartment:</strong> ${aptName}</p>
+            <p><strong>Units:</strong> ${units}</p>
+            <p><strong>Occupied Units:</strong> ${occupiedUnits}</p>
+            <p><strong>Estimated Waste Generated:</strong> ${wastePerMonth} kg/month</p>
+            <p><strong>Estimated Savings:</strong> ₹${savingsEstimate.toLocaleString()}</p>
+        `;
 
-// 3. Handle form submission
-document.getElementById("reportForm").addEventListener("submit", function(event) {
-    event.preventDefault();
+        // Show unlock section
+        unlockSection.style.display = 'block';
+        unlockSection.style.opacity = 0;
+        setTimeout(() => unlockSection.style.opacity = 1, 150);
 
-    const apt = document.getElementById("apartment").value.trim();
-    const units = document.getElementById("units").value.trim();
-    const location = document.getElementById("location").value.trim();
-
-    if (!apt || !units || !location) {
-        alert("Please fill in all fields before generating the report.");
-        return;
-    }
-
-    // Render the report with unlock and download buttons
-    document.getElementById("report").innerHTML =
-        reportTemplate(apt, units, location) +
-        `<div class="unlock-section">
-            <hr>
-            <p><strong>Want a detailed, society-specific strategy?</strong></p>
-            <button id="unlockBtn" type="button">Unlock Full Report</button>
-         </div>` +
-        `<button id="downloadPdfBtn" type="button" style="margin-top: 10px;">Download as PDF</button>`;
-
-    // Bind unlock button event
-    document.getElementById("unlockBtn").addEventListener("click", unlockForm, { once: true });
-
-    // Setup PDF download button functionality
-    setupDownloadPdf();
+        // Reset generate button
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Generate Report";
+    }, 1200); // delay for UX
 });
 
-// 4. Unlock form logic with Google Sheets integration
-function unlockForm() {
-    document.getElementById("report").innerHTML += `
-        <form id="unlockForm" style="margin-top:15px;">
-            <label>Phone Number</label>
-            <input type="tel" name="phone" pattern="[0-9]{10}" placeholder="10-digit number" required>
-            <label>Email</label>
-            <input type="email" name="email" placeholder="you@example.com" required>
-            <button type="submit">Get Detailed Report</button>
-        </form>
-    `;
+// ==== UNLOCK FORM ====
+unlockForm.addEventListener('submit', e => {
+    e.preventDefault();
 
-    document.getElementById("unlockForm").addEventListener("submit", function(e) {
-        e.preventDefault();
+    const unlockBtn = unlockForm.querySelector('button');
+    unlockBtn.disabled = true;
+    unlockBtn.textContent = "Saving...";
 
-        const phone = this.phone.value.trim();
-        const email = this.email.value.trim();
+    const formData = {
+        name: document.getElementById('name').value,
+        email: document.getElementById('email').value,
+        phone: document.getElementById('phone').value
+    };
 
-        const leadData = {
-            apartment: document.getElementById("apartment").value.trim(),
-            units: document.getElementById("units").value.trim(),
-            location: document.getElementById("location").value.trim(),
-            phone,
-            email
-        };
+    // Replace with your actual Google Apps Script Web App URL
+    const scriptURL = "https://script.google.com/macros/s/AKfycbyW3wXjWU2hxvXMryL9xzyk_aOLPILQ2QCokU61jOP9rrApAP1Pu0gxEHBRavgRBZv_/exec";
 
-        // Send data to Google Sheets Web App
-        fetch("YOUR_GOOGLE_SCRIPT_WEB_APP_URL", {
-            method: "POST",
-            mode: "no-cors",
-            body: JSON.stringify(leadData)
-        }).catch(err => console.error("Lead send error:", err));
-
-        alert("Thanks! Our team will send you a detailed strategy soon.");
-    }, { once: true });
-}
-
-// 5. Setup download PDF button logic
-function setupDownloadPdf() {
-    const downloadBtn = document.getElementById("downloadPdfBtn");
-    if (!downloadBtn) return;
-
-    downloadBtn.addEventListener("click", () => {
-        const reportElement = document.getElementById("report");
-
-        // Use html2canvas to capture the report div as an image
-        html2canvas(reportElement, { scale: 2 }).then(canvas => {
-            const imgData = canvas.toDataURL('image/png');
-
-            const pdf = new jspdf.jsPDF({
-                orientation: 'portrait',
-                unit: 'pt',
-                format: 'a4'
-            });
-
-            const pdfWidth = pdf.internal.pageSize.getWidth();
-            const pdfHeight = pdf.internal.pageSize.getHeight();
-
-            // Calculate image size to fit PDF width
-            const imgProps = pdf.getImageProperties(imgData);
-            const imgWidth = pdfWidth;
-            const imgHeight = (imgProps.height * imgWidth) / imgProps.width;
-
-            let position = 10;
-            pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-            pdf.save(`Waste_Management_Report_${Date.now()}.pdf`);
-        });
+    fetch(scriptURL, {
+        method: 'POST',
+        body: new URLSearchParams(formData)
+    })
+    .then(res => res.text())
+    .then(() => {
+        unlockBtn.textContent = "Unlocked ✓";
+        downloadBtn.style.display = 'block';
+    })
+    .catch(err => {
+        console.error('Error!', err);
+        unlockBtn.disabled = false;
+        unlockBtn.textContent = "Unlock & Save to Google Sheets";
     });
+});
+
+// ==== DOWNLOAD PDF ====
+downloadBtn.addEventListener('click', () => {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    doc.text("Waste Management Report", 10, 10);
+    doc.fromHTML(reportContainer.innerHTML, 10, 20);
+    doc.save("waste-report.pdf");
+});
+
+// ==== SMALL CSS ANIMATION FOR SPINNER ====
+const style = document.createElement('style');
+style.textContent = `
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
+`;
+document.head.appendChild(style);
