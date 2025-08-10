@@ -1,59 +1,61 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Apartment Waste Management Report</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Apartment Waste Management Report</title>
 
-    <!-- Link to external CSS for beautified UI/UX -->
-    <link rel="stylesheet" href="style.css">
+  <!-- Link to external CSS for beautified UI/UX -->
+  <link rel="stylesheet" href="style.css" />
 
-    <!-- You can add favicon/logo here -->
+  <!-- Load jsPDF library for PDF generation -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
 </head>
 <body>
-    <div class="container">
-        <h2>Apartment Waste Management Report</h2>
+  <div class="container">
+    <h2>Apartment Waste Management Report</h2>
 
-        <!-- Main Form -->
-        <form id="reportForm">
-            <label for="apartment">Apartment Name</label>
-            <input type="text" id="apartment" name="apartment" placeholder="Start typing..." list="apartmentList" required>
-            <datalist id="apartmentList"></datalist>
+    <!-- Main Form -->
+    <form id="reportForm">
+      <label for="apartment">Apartment Name</label>
+      <input type="text" id="apartment" name="apartment" placeholder="Start typing..." list="apartmentList" required />
+      <datalist id="apartmentList"></datalist>
 
-            <label for="units">Number of Units</label>
-            <input type="number" id="units" name="units" placeholder="Enter number of flats" required>
+      <label for="units">Number of Units</label>
+      <input type="number" id="units" name="units" placeholder="Enter number of flats" required />
 
-            <label for="occupancy">Occupancy Rate (%)</label>
-            <input type="number" id="occupancy" name="occupancy" placeholder="e.g., 85" required>
+      <label for="occupancy">Occupancy Rate (%)</label>
+      <input type="number" id="occupancy" name="occupancy" placeholder="e.g., 85" required />
 
-            <button type="submit">Generate Report</button>
-        </form>
+      <button type="submit">Generate Report</button>
+    </form>
 
-        <!-- Generated Report Container -->
-        <div id="report" style="display:none;"></div>
+    <!-- Generated Report Container -->
+    <div id="report" style="display:none;"></div>
 
-        <!-- Unlock Section -->
-        <div class="unlock-section" id="unlockSection" style="display:none;">
-            <h3>Unlock Full Report</h3>
-            <form id="unlockForm">
-                <label for="name">Your Name</label>
-                <input type="text" id="name" name="name" required>
+    <!-- Unlock Section -->
+    <div class="unlock-section" id="unlockSection" style="display:none;">
+      <h3>Unlock Full Report</h3>
+      <form id="unlockForm">
+        <label for="name">Your Name</label>
+        <input type="text" id="name" name="name" required />
 
-                <label for="email">Email</label>
-                <input type="email" id="email" name="email" required>
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" required />
 
-                <label for="phone">Phone Number</label>
-                <input type="tel" id="phone" name="phone" required>
+        <label for="phone">Phone Number</label>
+        <input type="tel" id="phone" name="phone" required />
 
-                <button type="submit">Unlock &amp; Save to Google Sheets</button>
-            </form>
-        </div>
-
-        <!-- Download as PDF -->
-        <button id="downloadPdfBtn" style="display:none;">Download as PDF</button>
+        <button type="submit">Unlock &amp; Save to Google Sheets</button>
+      </form>
     </div>
 
-    <!-- Link to your existing logic -->
-    <script src="script.js"></script>
+    <!-- Download as PDF -->
+    <button id="downloadPdfBtn" style="display:none;">Download as PDF</button>
+  </div>
+
+  <!-- Your script.js must load after DOM and jsPDF -->
+  <script src="script.js" defer></script>
 </body>
 </html>
+
