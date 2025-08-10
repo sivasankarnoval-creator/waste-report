@@ -16,8 +16,9 @@ fetch('apartments.json')
   .then(data => {
     const apartmentList = document.getElementById('apartmentList');
     data.forEach(item => {
+      // apartments.json is an array of arrays, so use item[0] for name
       const option = document.createElement('option');
-      option.value = item.name;
+      option.value = item[0];
       apartmentList.appendChild(option);
     });
   })
@@ -37,15 +38,14 @@ reportForm.addEventListener('submit', e => {
     submitBtn.textContent = "Generating...";
 
     setTimeout(() => {
-        // Simulate calculation
         const aptName = document.getElementById('apartment').value;
         const units = parseInt(document.getElementById('units').value, 10);
         const occupancy = parseInt(document.getElementById('occupancy').value, 10);
 
         // Example calculations
         const occupiedUnits = Math.round(units * (occupancy / 100));
-        const wastePerMonth = occupiedUnits * 2; // arbitrary example: 2kg per occupied unit
-        const savingsEstimate = occupiedUnits * 50; // arbitrary: ₹50 savings per unit
+        const wastePerMonth = occupiedUnits * 2; // 2kg per unit example
+        const savingsEstimate = occupiedUnits * 50; // ₹50 per unit example
 
         reportContainer.innerHTML = `
             <h3>Report Summary</h3>
@@ -64,7 +64,7 @@ reportForm.addEventListener('submit', e => {
         // Reset generate button
         submitBtn.disabled = false;
         submitBtn.textContent = "Generate Report";
-    }, 1200); // delay for UX
+    }, 1200); // Delay for UX
 });
 
 // ==== UNLOCK FORM ====
@@ -81,7 +81,7 @@ unlockForm.addEventListener('submit', e => {
         phone: document.getElementById('phone').value
     };
 
-    // Replace with your actual Google Apps Script Web App URL
+    // Your actual Google Apps Script Web App URL
     const scriptURL = "https://script.google.com/macros/s/AKfycbyW3wXjWU2hxvXMryL9xzyk_aOLPILQ2QCokU61jOP9rrApAP1Pu0gxEHBRavgRBZv_/exec";
 
     fetch(scriptURL, {
@@ -109,7 +109,7 @@ downloadBtn.addEventListener('click', () => {
     doc.save("waste-report.pdf");
 });
 
-// ==== SMALL CSS ANIMATION FOR SPINNER ====
+// ==== ADD SPINNER ANIMATION CSS ====
 const style = document.createElement('style');
 style.textContent = `
 @keyframes spin {
